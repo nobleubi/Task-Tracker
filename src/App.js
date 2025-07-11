@@ -38,10 +38,19 @@ const App = () => {
             !task.notified
           ) {
             if (Notification.permission === 'granted') {
-              new Notification('Task Reminder', {
-                body: task.text,
-                icon: '/favicon.ico',
-              });
+  new Notification('Task Reminder', {
+    body: task.text,
+    icon: '/favicon.ico',
+  });
+
+  // Play sound
+  const audio = new Audio('/alert.mp3');
+  audio.play();
+
+  // Trigger vibration (if supported)
+  if (navigator.vibrate) {
+    navigator.vibrate([200, 100, 200]);
+  }
             }
 
             task.notified = true;
