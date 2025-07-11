@@ -6,7 +6,7 @@ import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
 import About from "./components/About";
 
-const API_URL = 'https://your-app-name.onrender.com/tasks'; // Replace with your actual Render URL
+const API_URL = https://task-tracker-backend-6bzc.onrender.com'; // Replace with your actual Render URL
 
 const App = () => {
   const [showAddTask, setShowAddTask] = useState(false);
