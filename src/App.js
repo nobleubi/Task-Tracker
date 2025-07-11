@@ -6,7 +6,7 @@ import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
 import About from "./components/About";
 
-const API_URL = "https://task-tracker-backend-6bzc.onrender.com";
+const API_URL = "https://my-json-server.typicode.com/nobleubi/Task-Tracker/tasks";
 
 const App = () => {
   const [showAddTask, setShowAddTask] = useState(false);
