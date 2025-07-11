@@ -6,11 +6,12 @@ import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
 import About from "./components/About";
 
-const API_URL = https://task-tracker-backend-6bzc.onrender.com'; // change to your actual Render URL
+const API_URL = 'https://your-app-name.onrender.com/tasks'; // Replace with your actual Render URL
 
 const App = () => {
   const [showAddTask, setShowAddTask] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const getTasks = async () => {
@@ -38,26 +39,33 @@ const App = () => {
             !task.notified
           ) {
             if (Notification.permission === 'granted') {
-  new Notification('Task Reminder', {
-    body: task.text,
-    icon: '/favicon.ico',
-  });
+              new Notification('Task Reminder', {
+                body: task.text,
+                icon: '/favicon.ico',
+              });
 
-  // Play sound
-  const audio = new Audio('/alert.mp3');
-  audio.play();
+              // Play sound
+              const audio = new Audio('/alert.mp3');
+              audio.play();
 
-  // Trigger vibration (if supported)
-  if (navigator.vibrate) {
-    navigator.vibrate([200, 100, 200]);
-  }
+              // Vibrate (if supported)
+              if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+              }
+
+              // Save to on-screen notification history
+              setNotifications((prev) => [
+                ...prev,
+                `🔔 ${task.text} at ${new Date().toLocaleTimeString()}`
+              ]);
             }
 
+            // Prevent duplicate notification (only in memory)
             task.notified = true;
           }
         }
       });
-    }, 30000); // check every 30 seconds
+    }, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
   }, [tasks]);
@@ -142,6 +150,17 @@ const App = () => {
           <Route path="/about" element={<About />} />
         </Routes>
         <Footer />
+
+        {notifications.length > 0 && (
+          <div style={{ marginTop: '30px' }}>
+            <h4>Notification History</h4>
+            <ul>
+              {notifications.map((note, index) => (
+                <li key={index}>{note}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </Router>
   );
