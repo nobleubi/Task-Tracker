@@ -6,7 +6,7 @@ import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
 import About from "./components/About";
 
-const API_URL = https://task-tracker-backend-6bzc.onrender.com";
+const API_URL = 'https://your-app-name.onrender.com/tasks'; // change to your actual Render URL
 
 const App = () => {
   const [showAddTask, setShowAddTask] = useState(false);
@@ -17,55 +17,83 @@ const App = () => {
       const tasksFromServer = await fetchTasks();
       setTasks(tasksFromServer);
     };
+
     getTasks();
   }, []);
 
-  // Fetch all tasks
+  useEffect(() => {
+    Notification.requestPermission();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+
+      tasks.forEach((task) => {
+        if (task.reminder && task.reminderTime) {
+          const reminderTime = new Date(task.reminderTime);
+
+          if (
+            reminderTime <= now &&
+            !task.notified
+          ) {
+            if (Notification.permission === 'granted') {
+              new Notification('Task Reminder', {
+                body: task.text,
+                icon: '/favicon.ico',
+              });
+            }
+
+            task.notified = true;
+          }
+        }
+      });
+    }, 30000); // check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [tasks]);
+
   const fetchTasks = async () => {
-    const res = await fetch(`${API_URL}/tasks`);
+    const res = await fetch(API_URL);
     return await res.json();
   };
 
-  // Fetch single task
   const fetchTask = async (id) => {
-    const res = await fetch(`${API_URL}/tasks/${id}`);
+    const res = await fetch(`${API_URL}/${id}`);
     return await res.json();
   };
 
-  // Add task (this will not save permanently on my-json-server)
   const addTask = async (task) => {
-    const res = await fetch(`${API_URL}/tasks`, {
+    const res = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json',
+        'Content-type': 'application/json'
       },
-      body: JSON.stringify(task),
+      body: JSON.stringify(task)
     });
 
     const data = await res.json();
-    setTasks([...tasks, data]); // temporary in browser
+    setTasks([...tasks, data]);
   };
 
-  // Delete task
   const deleteTask = async (id) => {
-    await fetch(`${API_URL}/tasks/${id}`, {
-      method: 'DELETE',
+    await fetch(`${API_URL}/${id}`, {
+      method: 'DELETE'
     });
 
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  // Toggle reminder
   const toggleReminder = async (id) => {
     const taskToToggle = await fetchTask(id);
     const updTask = { ...taskToToggle, reminder: !taskToToggle.reminder };
 
-    const res = await fetch(`${API_URL}/tasks/${id}`, {
+    const res = await fetch(`${API_URL}/${id}`, {
       method: 'PUT',
       headers: {
-        'Content-type': 'application/json',
+        'Content-type': 'application/json'
       },
-      body: JSON.stringify(updTask),
+      body: JSON.stringify(updTask)
     });
 
     const data = await res.json();
@@ -80,7 +108,10 @@ const App = () => {
   return (
     <Router>
       <div className="container">
-        <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask} />
+        <Header
+          onAdd={() => setShowAddTask(!showAddTask)}
+          showAdd={showAddTask}
+        />
         <Routes>
           <Route
             path="/"
@@ -88,7 +119,11 @@ const App = () => {
               <>
                 {showAddTask && <AddTask onAdd={addTask} />}
                 {tasks.length > 0 ? (
-                  <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} />
+                  <Tasks
+                    tasks={tasks}
+                    onDelete={deleteTask}
+                    onToggle={toggleReminder}
+                  />
                 ) : (
                   "No Tasks To Show"
                 )}
